@@ -1,0 +1,49 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.shuangyulin.mapper.OldManMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加老人记录 -->
+	<insert id="addOldMan" parameterType="oldMan">
+		insert into t_oldMan(name,sex,age,manPhoto,manDesc,userObj,addTime) values 
+		(#{name},#{sex},#{age},#{manPhoto},#{manDesc},#{userObj.user_name},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询老人记录 -->
+	<select id="queryOldMan" resultMap="oldManMap" >
+		select t_oldMan.* from t_oldMan,t_userInfo ${where} and t_oldMan.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="oldManMap" type="oldMan">
+        <id property="oldManId" column="oldManId" />
+        <association property="userObj" column="userObj" select="com.shuangyulin.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有老人记录 -->
+	<select id="queryOldManList" resultMap="oldManMap" >
+		select t_oldMan.* from t_oldMan,t_userInfo ${where} and t_oldMan.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的老人记录数 -->
+	<select id="queryOldManCount" resultType="int">
+		select count(*) from t_oldMan,t_userInfo ${where} and t_oldMan.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个老人记录 -->
+	<select id="getOldMan" parameterType="int" resultMap="oldManMap">
+		select * from t_oldMan where t_oldMan.oldManId = #{oldManId}
+	</select>
+
+	<!-- 更新老人记录 -->
+	<update id="updateOldMan" parameterType="oldMan">
+		update t_oldMan set name=#{name},sex=#{sex},age=#{age},manPhoto=#{manPhoto},manDesc=#{manDesc},userObj=#{userObj.user_name},addTime=#{addTime} where oldManId = #{oldManId}
+	</update>
+
+	<!-- 删除老人记录 -->
+	<delete id="deleteOldMan" parameterType="int">
+		delete from t_oldMan where oldManId=#{oldManId}
+	</delete>
+
+</mapper>

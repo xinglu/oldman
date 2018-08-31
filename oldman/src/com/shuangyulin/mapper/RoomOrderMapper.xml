@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.shuangyulin.mapper.RoomOrderMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加订单记录 -->
+	<insert id="addRoomOrder" parameterType="roomOrder">
+		insert into t_roomOrder(roomObj,oldManObj,liveDate,monthNum,orderMoney,orderState,orderDesc,orderTime) values 
+		(#{roomObj.roomNo},#{oldManObj.oldManId},#{liveDate},#{monthNum},#{orderMoney},#{orderState},#{orderDesc},#{orderTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询订单记录 -->
+	<select id="queryRoomOrder" resultMap="roomOrderMap" >
+		select t_roomOrder.* from t_roomOrder,t_oldMan,t_room ${where} and t_roomOrder.roomObj = t_room.roomNo and t_roomOrder.oldManObj = t_oldMan.oldManId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="roomOrderMap" type="roomOrder">
+        <id property="orderId" column="orderId" />
+        <association property="roomObj" column="roomObj" select="com.shuangyulin.mapper.RoomMapper.getRoom" />
+        <association property="oldManObj" column="oldManObj" select="com.shuangyulin.mapper.OldManMapper.getOldMan" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有订单记录 -->
+	<select id="queryRoomOrderList" resultMap="roomOrderMap" >
+		select t_roomOrder.* from t_roomOrder,t_oldMan,t_room ${where} and t_roomOrder.roomObj = t_room.roomNo and t_roomOrder.oldManObj = t_oldMan.oldManId
+	</select>
+
+    <!-- 按照查询条件的订单记录数 -->
+	<select id="queryRoomOrderCount" resultType="int">
+		select count(*) from t_roomOrder,t_oldMan,t_room ${where} and t_roomOrder.roomObj = t_room.roomNo and t_roomOrder.oldManObj = t_oldMan.oldManId
+	</select>
+
+	<!-- 根据主键查询某个订单记录 -->
+	<select id="getRoomOrder" parameterType="int" resultMap="roomOrderMap">
+		select * from t_roomOrder where t_roomOrder.orderId = #{orderId}
+	</select>
+
+	<!-- 更新订单记录 -->
+	<update id="updateRoomOrder" parameterType="roomOrder">
+		update t_roomOrder set roomObj=#{roomObj.roomNo},oldManObj=#{oldManObj.oldManId},liveDate=#{liveDate},monthNum=#{monthNum},orderMoney=#{orderMoney},orderState=#{orderState},orderDesc=#{orderDesc},orderTime=#{orderTime} where orderId = #{orderId}
+	</update>
+
+	<!-- 删除订单记录 -->
+	<delete id="deleteRoomOrder" parameterType="int">
+		delete from t_roomOrder where orderId=#{orderId}
+	</delete>
+
+</mapper>
